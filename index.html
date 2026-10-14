@@ -1,1 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Bónus - Progresso Anual</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .balance-info h4 {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .balance-info h2 {
+            font-size: 22px;
+            color: #111;
+        }
+
+        .btn-sacar-top {
+            background: #fe2c55;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: #fafafa;
+        }
+
+        .form-group input:focus {
+            border-color: #fe2c55;
+            background: #fff;
+        }
+
+        .btn-main {
+            background: #fe2c55;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-secondary {
+            background: #007aff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .loader-container {
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 45px;
+            height: 45px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #fe2c55;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert-box {
+            background: #fff3f3;
+            border: 1px solid #ffd2d2;
+            color: #d8000c;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .timer {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fe2c55;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .qr-box {
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            color: #555;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- TELA 1: Progresso Anual -->
+        <div id="screen-progress" class="screen active">
+            <h3 style="margin-bottom: 5px;">Seu Progresso Anual</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">Estamos carregando seu histórico. Aguarde enquanto confirmamos as etapas.</p>
+            
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <h4 id="progress-status" style="color: #fe2c55; font-size: 15px;">Analisando Jan/Fev...</h4>
+            </div>
+
+            <button class="btn-main" id="btn-goto-withdraw" style="display:none;" onclick="irParaSaque()">Ver Resultado Final</button>
+        </div>
+
+        <!-- TELA 2: Painel de Saldo -->
+        <div id="screen-home" class="screen">
+            <div class="header-top">
+                <div class="balance-info">
+                    <h4>Seu saldo 💰</h4>
+                    <h2>R$ 4.596,72</h2>
+                </div>
+                <button class="btn-sacar-top" onclick="irParaVinculacao()">Sacar</button>
+            </div>
+            
+            <div style="background: #fafafa; border: 1px solid #eee; padding: 20px; border-radius: 12px; text-align: center; margin-top: 20px;">
+                <h3 style="color: #27ae60; margin-bottom: 8px;">Parabéns!</h3>
+                <p style="font-size: 13px; color: #666;">Você concluiu todas as tarefas com sucesso e seu saldo está pronto para resgate.</p>
+            </div>
+        </div>
+
+        <!-- TELA 3: Vincular Pix -->
+        <div id="screen-pix" class="screen">
+            <h3>Vincular PIX</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Insira os seus dados para receber o Pix.</p>
+            
+            <div class="form-group">
+                <label>Nome completo</label>
+                <input type="text" id="input-nome" placeholder="Digite seu nome completo">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Chave PIX</label>
+                <select id="tipo-chave">
+                    <option value="cpf">CPF</option>
+                    <option value="email">E-mail</option>
+                    <option value="celular">Celular</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Chave PIX</label>
+                <input type="text" id="input-chave" placeholder="Digite sua chave PIX">
+            </div>
+
+            <button class="btn-main" onclick="processarValidacao()">Enviar</button>
+        </div>
+
+        <!-- TELA 4: Validação de Dados -->
+        <div id="screen-validating" class="screen">
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <h4 id="validation-text" style="color: #fe2c55;">Validando dados...</h4>
+            </div>
+        </div>
+
+        <!-- TELA 5: Checkout / Taxa -->
+        <div id="screen-checkout" class="screen">
+            <h3>Confirmação de Identidade</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Taxa obrigatória para liberação do saque.</p>
+            
+            <div class="alert-box">
+                <b>Atenção:</b> O valor de R$ 23,49 será reembolsado integralmente para si em 1 minuto.
+            </div>
+
+            <div style="background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
+                <span style="font-size: 13px; color: #666;">Valor a pagar</span>
+                <h2 style="color: #fe2c55; font-size: 24px;">R$ 23,49</h2>
+            </div>
+
+            <div class="timer" id="countdown">14:59</div>
+
+            <button class="btn-secondary" onclick="copiarPixCode()">Copiar código Pix</button>
+            
+            <div class="qr-box">
+                [ QR Code Pix Gerado Dinamicamente ]
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Etapas detalhadas do progresso
+        const etapasProgresso = [
+            "Analisando Jan/Fev...",
+            "Analisando Mar/Abr...",
+            "Analisando Mai/Jun...",
+            "Analisando Jul/Ago...",
+            "Analisando Set/Out...",
+            "Analisando Nov/Dez...",
+            "Finalizando histórico...",
+            "Histórico validado com sucesso!"
+        ];
+        
+        let passoAtual = 0;
+        const statusElemento = document.getElementById('progress-status');
+
+        const intervalProgresso = setInterval(() => {
+            passoAtual++;
+            if (passoAtual < etapasProgresso.length) {
+                statusElemento.innerText = etapasProgresso[passoAtual];
+            } else {
+                clearInterval(intervalProgresso);
+                // Exibe o botão para avançar para a próxima tela
+                document.getElementById('btn-goto-withdraw').style.display = 'block';
+            }
+        }, 1000);
+
+        function trocarTela(idTela) {
+            document.querySelectorAll('.screen').forEach(tela => {
+                tela.classList.remove('active');
+            });
+            document.getElementById(idTela).classList.add('active');
+        }
+
+        function irParaSaque() {
+            trocarTela('screen-home');
+        }
+
+        function irParaVinculacao() {
+            trocarTela('screen-pix');
+        }
+
+        function processarValidacao() {
+            const nome = document.getElementById('input-nome').value;
+            const chave = document.getElementById('input-chave').value;
+
+            if(!nome || !chave) {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
+
+            trocarTela('screen-validating');
+
+            const textosValidacao = ["Validando dados...", "Conectando ao servidor...", "Concluindo resgate...", "Quase pronto..."];
+            let idx = 0;
+            const valText = document.getElementById('validation-text');
+
+            const intVal = setInterval(() => {
+                idx++;
+                if(idx < textosValidacao.length) {
+                    valText.innerText = textosValidacao[idx];
+                } else {
+                    clearInterval(intVal);
+                    trocarTela('screen-checkout');
+                    iniciarContador(14, 59);
+                }
+            }, 1200);
+        }
+
+        function iniciarContador(minutos, segundos) {
+            let tempoRestante = minutos * 60 + segundos;
+            const timerEl = document.getElementById('countdown');
+
+            const timerId = setInterval(() => {
+                let min = Math.floor(tempoRestante / 60);
+                let sec = tempoRestante % 60;
+                min = min < 10 ? '0' + min : min;
+                sec = sec < 10 ? '0' + sec : sec;
+
+                timerEl.innerText = `${min}:${sec}`;
+
+                if (tempoRestante > 0) {
+                    tempoRestante--;
+                } else {
+                    clearInterval(timerId);
+                    timerEl.innerText = "Expirado";
+                }
+            }, 1000);
+        }
+
+        function copiarPixCode() {
+            alert("Código Pix copiado com sucesso! (Simulação)");
+        }
+    </script>
+
+</body>
+</html>
 
